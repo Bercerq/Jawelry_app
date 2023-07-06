@@ -1,10 +1,11 @@
 import { Page, AlphaCard, Pagination } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { useEffect, useState } from "react";
-import { useAuthenticatedFetch } from "@shopify/app-bridge-react";
+
 import List from "../components/homepage/List";
 import Filters from "../components/homepage/Filters";
 import { PaginationContainer } from "../constants/styles";
+import { useAuthenticatedFetch } from "../hooks";
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);

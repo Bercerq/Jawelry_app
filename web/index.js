@@ -7,6 +7,7 @@ import serveStatic from "serve-static";
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
+import metafieldCreator from "./variant_metafield-creator.js";
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -47,7 +48,6 @@ app.get("/api/products/count", async (_req, res) => {
 });
 
 app.get("/api/products", async (_req, res) => {
-  console.log(_req?.query);
   try {
     const response = await shopify.api.rest.Product.all({
       session: res.locals.shopify.session,
@@ -60,6 +60,14 @@ app.get("/api/products", async (_req, res) => {
   }
 });
 
+app.get(`/api/products/:productId/variants.json`, async (_req, res) => {
+  try {
+    await metafieldCreator(res.locals.shopify.session);
+  } catch (error) {
+    console.error("Error creating metafield:", error);
+    res.status(500).send({ error: "Failed to create metafield" });
+  }
+});
 
 app.get("/api/products/create", async (_req, res) => {
   let status = 200;
