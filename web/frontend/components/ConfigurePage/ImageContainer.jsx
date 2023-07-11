@@ -13,7 +13,7 @@ import {
 
 import { throttle } from "@daybrush/utils";
 import keycon from "keycon";
-import { editHotspot } from "../../constants/functions/configurePage";
+import { editHotspot } from "../../functions/configurePage";
 function ImageContainer({
   configuredImage,
   handleUploadImage,

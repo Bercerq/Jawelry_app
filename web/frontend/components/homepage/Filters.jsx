@@ -1,26 +1,33 @@
 import {
-    TextField,
-    IndexTable,
-    LegacyCard,
-    IndexFilters,
-    useSetIndexFiltersMode,
-    useIndexResourceState,
-    Text,
-    ChoiceList,
-    RangeSlider,
-    Badge,
-  } from '@shopify/polaris';
-  
-  import {useState, useCallback} from 'react';
-import React from 'react'
+  TextField,
+  IndexFilters,
+  useSetIndexFiltersMode,
+  ChoiceList,
+  RangeSlider,
+} from "@shopify/polaris";
 
-function Filters() {
-    const sleep = (ms) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+import { useEffect, useState } from "react";
+import React from "react";
+import {
+  disambiguateLabel,
+  handleUseFilters,
+  isEmpty,
+} from "../../functions/filtersList";
+import { sortOptions } from "../../constants/list";
+import { useAuthenticatedFetch } from "../../hooks";
+
+function Filters({
+  setIsLoading,
+  setProductsData,
+  productsData,
+  handlePaginatePage,
+  setFilteredProductsData,
+}) {
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const [itemStrings, setItemStrings] = useState([
-    'All',
-    'Configured',
-    'No Configuration',
+    "All",
+    "Configured",
+    "No Configuration",
   ]);
   const deleteView = (index) => {
     const newItemStrings = [...itemStrings];
@@ -47,7 +54,7 @@ function Filters() {
         ? []
         : [
             {
-              type: 'rename',
+              type: "rename",
               onAction: () => {},
               onPrimaryAction: async (value) => {
                 const newItemsStrings = tabs.map((item, idx) => {
@@ -62,7 +69,7 @@ function Filters() {
               },
             },
             {
-              type: 'duplicate',
+              type: "duplicate",
               onPrimaryAction: async (value) => {
                 await sleep(1);
                 duplicateView(value);
@@ -70,10 +77,10 @@ function Filters() {
               },
             },
             {
-              type: 'edit',
+              type: "edit",
             },
             {
-              type: 'delete',
+              type: "delete",
               onPrimaryAction: async () => {
                 await sleep(1);
                 deleteView(index);
@@ -89,18 +96,10 @@ function Filters() {
     setSelected(itemStrings.length);
     return true;
   };
-  const sortOptions = [
-    {label: 'Order', value: 'order asc', directionLabel: 'Ascending'},
-    {label: 'Order', value: 'order desc', directionLabel: 'Descending'},
-    {label: 'Customer', value: 'customer asc', directionLabel: 'A-Z'},
-    {label: 'Customer', value: 'customer desc', directionLabel: 'Z-A'},
-    {label: 'Date', value: 'date asc', directionLabel: 'A-Z'},
-    {label: 'Date', value: 'date desc', directionLabel: 'Z-A'},
-    {label: 'Total', value: 'total asc', directionLabel: 'Ascending'},
-    {label: 'Total', value: 'total desc', directionLabel: 'Descending'},
-  ];
-  const [sortSelected, setSortSelected] = useState(['order asc']);
-  const {mode, setMode} = useSetIndexFiltersMode();
+  const [sortSelected, setSortSelected] = useState(["order asc"]);
+  const { mode, setMode } = useSetIndexFiltersMode();
+  const fetch = useAuthenticatedFetch();
+
   const onHandleCancel = () => {};
 
   const onHandleSave = async () => {
@@ -111,77 +110,69 @@ function Filters() {
   const primaryAction =
     selected === 0
       ? {
-          type: 'save-as',
+          type: "save-as",
           onAction: onCreateNewView,
           disabled: false,
           loading: false,
         }
       : {
-          type: 'save',
+          type: "save",
           onAction: onHandleSave,
           disabled: false,
           loading: false,
         };
-  const [accountStatus, setAccountStatus] = useState(
-    undefined,
-  );
-  const [moneySpent, setMoneySpent] = useState(
-    undefined,
-  );
-  const [taggedWith, setTaggedWith] = useState('');
-  const [queryValue, setQueryValue] = useState('');
+  const [accountStatus, setAccountStatus] = useState(undefined);
+  const [moneySpent, setMoneySpent] = useState(undefined);
+  const [taggedWith, setTaggedWith] = useState("");
+  const [queryValue, setQueryValue] = useState("");
 
-  const handleAccountStatusChange = useCallback(
-    (value) => setAccountStatus(value),
-    [],
-  );
-  const handleMoneySpentChange = useCallback(
-    (value) => setMoneySpent(value),
-    [],
-  );
-  const handleTaggedWithChange = useCallback(
-    (value) => setTaggedWith(value),
-    [],
-  );
-  const handleFiltersQueryChange = useCallback(
-    (value) => setQueryValue(value),
-    [],
-  );
-  const handleAccountStatusRemove = useCallback(
-    () => setAccountStatus(undefined),
-    [],
-  );
-  const handleMoneySpentRemove = useCallback(
-    () => setMoneySpent(undefined),
-    [],
-  );
-  const handleTaggedWithRemove = useCallback(() => setTaggedWith(''), []);
-  const handleQueryValueRemove = useCallback(() => setQueryValue(''), []);
-  const handleFiltersClearAll = useCallback(() => {
-    handleAccountStatusRemove();
-    handleMoneySpentRemove();
-    handleTaggedWithRemove();
-    handleQueryValueRemove();
-  }, [
+  const {
+    handleAccountStatusChange,
+    handleTaggedWithChange,
+    handleMoneySpentChange,
     handleAccountStatusRemove,
     handleMoneySpentRemove,
-    handleQueryValueRemove,
     handleTaggedWithRemove,
-  ]);
+    handleFiltersQueryChange,
+    handleFiltersClearAll,
+  } = handleUseFilters(
+    setAccountStatus,
+    setMoneySpent,
+    setTaggedWith,
+    setQueryValue
+  );
+
+  useEffect(() => {
+    // let response = await fetch(`/api/products?title=${queryValue}&fields=title`);
+    // let res = await response.json();
+    setIsLoading(true)
+    const fetchData = async () => {
+      await handlePaginatePage();
+  
+      let filteredArr = productsData.filter((product) => {
+        return product.title.includes(queryValue);
+      });
+  
+      setFilteredProductsData(filteredArr);
+      setIsLoading(false)
+    };
+  
+    fetchData();
+  }, [queryValue]);
 
   const filters = [
     {
-      key: 'accountStatus',
-      label: 'Account status',
+      key: "accountStatus",
+      label: "Account status",
       filter: (
         <ChoiceList
           title="Account status"
           titleHidden
           choices={[
-            {label: 'Enabled', value: 'enabled'},
-            {label: 'Not invited', value: 'not invited'},
-            {label: 'Invited', value: 'invited'},
-            {label: 'Declined', value: 'declined'},
+            { label: "Enabled", value: "enabled" },
+            { label: "Not invited", value: "not invited" },
+            { label: "Invited", value: "invited" },
+            { label: "Declined", value: "declined" },
           ]}
           selected={accountStatus || []}
           onChange={handleAccountStatusChange}
@@ -191,8 +182,8 @@ function Filters() {
       shortcut: true,
     },
     {
-      key: 'taggedWith',
-      label: 'Tagged with',
+      key: "taggedWith",
+      label: "Tagged with",
       filter: (
         <TextField
           label="Tagged with"
@@ -205,8 +196,8 @@ function Filters() {
       shortcut: true,
     },
     {
-      key: 'moneySpent',
-      label: 'Money spent',
+      key: "moneySpent",
+      label: "Money spent",
       filter: (
         <RangeSlider
           label="Money spent is between"
@@ -225,7 +216,7 @@ function Filters() {
 
   const appliedFilters = [];
   if (accountStatus && !isEmpty(accountStatus)) {
-    const key = 'accountStatus';
+    const key = "accountStatus";
     appliedFilters.push({
       key,
       label: disambiguateLabel(key, accountStatus),
@@ -233,7 +224,7 @@ function Filters() {
     });
   }
   if (moneySpent) {
-    const key = 'moneySpent';
+    const key = "moneySpent";
     appliedFilters.push({
       key,
       label: disambiguateLabel(key, moneySpent),
@@ -241,7 +232,7 @@ function Filters() {
     });
   }
   if (!isEmpty(taggedWith)) {
-    const key = 'taggedWith';
+    const key = "taggedWith";
     appliedFilters.push({
       key,
       label: disambiguateLabel(key, taggedWith),
@@ -251,53 +242,31 @@ function Filters() {
 
   return (
     <IndexFilters
-    sortOptions={sortOptions}
-    sortSelected={sortSelected}
-    queryValue={queryValue}
-    queryPlaceholder="Searching in all"
-    onQueryChange={handleFiltersQueryChange}
-    onQueryClear={() => {}}
-    onSort={setSortSelected}
-    primaryAction={primaryAction}
-    cancelAction={{
-      onAction: onHandleCancel,
-      disabled: false,
-      loading: false,
-    }}
-    tabs={tabs}
-    selected={selected}
-    onSelect={setSelected}
-    canCreateNewView
-    onCreateNewView={onCreateNewView}
-    filters={filters}
-    appliedFilters={appliedFilters}
-    onClearAll={handleFiltersClearAll}
-    mode={mode}
-    setMode={setMode}
-  />
-  )
+      sortOptions={sortOptions}
+      sortSelected={sortSelected}
+      queryValue={queryValue}
+      queryPlaceholder="Searching in all"
+      onQueryChange={handleFiltersQueryChange}
+      onQueryClear={() => {}}
+      onSort={setSortSelected}
+      primaryAction={primaryAction}
+      cancelAction={{
+        onAction: onHandleCancel,
+        disabled: false,
+        loading: false,
+      }}
+      tabs={tabs}
+      selected={selected}
+      onSelect={setSelected}
+      canCreateNewView
+      onCreateNewView={onCreateNewView}
+      filters={filters}
+      appliedFilters={appliedFilters}
+      onClearAll={handleFiltersClearAll}
+      mode={mode}
+      setMode={setMode}
+    />
+  );
 }
 
-
-function disambiguateLabel(key, value) {
-    switch (key) {
-      case 'moneySpent':
-        return `Money spent is between $${value[0]} and $${value[1]}`;
-      case 'taggedWith':
-        return `Tagged with ${value}`;
-      case 'accountStatus':
-        return (value).map((val) => `Customer ${val}`).join(', ');
-      default:
-        return value;
-    }
-  }
-
-  function isEmpty(value) {
-    if (Array.isArray(value)) {
-      return value.length === 0;
-    } else {
-      return value === '' || value == null;
-    }
-  }
-
-export default Filters
+export default Filters;

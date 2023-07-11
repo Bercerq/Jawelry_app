@@ -1,5 +1,5 @@
-import { Badge, Page } from "@shopify/polaris";
-import React, { useEffect, useState } from "react";
+import { Badge, Page, Toast } from "@shopify/polaris";
+import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -10,10 +10,11 @@ import ImageUploader from "../components/ConfigurePage/ImageUploader";
 import VariantPicker from "../components/ConfigurePage/VariantPicker";
 import HotSpotsList from "../components/ConfigurePage/HotSpotsList";
 
-import { useUploadImage } from "../constants/hooks/useUploadImage";
-
 import { ConfiguredContainer, ConfiguredElement } from "../constants/styles";
 import { useAuthenticatedFetch } from "../hooks";
+import { useUploadImage } from "../hooks/useUploadImage";
+import { useQuery } from "@apollo/client";
+import { GET_PRODUCTS_BY_ID } from "../constants/graphql";
 
 function ConfigurePage() {
   const { selectedProduct } = useSelector((state) => state.productReducer);
@@ -30,7 +31,17 @@ function ConfigurePage() {
 
   const handleUploadImage = useUploadImage(setConfiguredImage);
   const fetch = useAuthenticatedFetch();
-  
+
+  const [showToast, setShowToast] = useState(false);
+
+  const showActiveToast = useCallback(
+    () => setShowToast((showToast) => !showToast),
+    []
+  );
+
+  const toastMarkup = showToast ? (
+    <Toast content="The configuration is saved" onDismiss={showActiveToast} />
+  ) : null;
 
   useEffect(() => {
     if (!selectedProduct.handle) {
@@ -39,14 +50,43 @@ function ConfigurePage() {
       setSelectedVariant(selectedProduct?.variants[0]?.title);
     }
   }, [selectedProduct]);
-
+  let queryData = useQuery(GET_PRODUCTS_BY_ID);
+  const { error, data, loading } = queryData;
+  console.log(data);
   const saveChanges = async () => {
-    
-    await fetch(`/api/products/7308381356225/variants.json`);
+    alert(
+      JSON.stringify({
+        // selectedProduct,
+        charmLocation: charmLocation.value,
+        hotspots,
+      })
+    );
+    // await fetch(`/admin/api/2023-07/graphql.json`);
+  };
+  const coppyConfigure = () => {
+    let configureObj = {
+      hotspots,
+      charmLocation,
+    };
+    showActiveToast();
+    localStorage.setItem("jawelry_config", JSON.stringify(configureObj));
+  };
+  const applyConfigure = () => {
+    let lsConfigure = JSON.parse(localStorage.getItem("jawelry_config"));
+    showActiveToast();
+    if (lsConfigure?.hotspots) {
+      setHotspots(lsConfigure.hotspots);
+    }
+    if (lsConfigure?.charmLocation) {
+      setCharmLocation(lsConfigure.charmLocation);
+    }
+  };
+  const goBackClick = () => {
+    navigate(`/`, { replace: true, reloadDocument: true });
   };
   return (
     <Page
-      backAction={{ content: "homepage", url: "/" }}
+      backAction={{ content: "homepage", onAction: () => goBackClick() }}
       title={selectedProduct.title}
       titleMetadata={<Badge>No Configuration</Badge>}
       subtitle={selectedProduct.handle}
@@ -54,21 +94,24 @@ function ConfigurePage() {
       primaryAction={{
         content: "Save",
         onAction: () => saveChanges(),
+        disabled: !hotspots.length,
       }}
       secondaryActions={[
         {
-          content: "Duplicate",
+          content: "Apply saved configuration",
           accessibilityLabel: "Secondary action label",
-          onAction: () => alert("Duplicate action"),
+          onAction: () => applyConfigure(),
+          disabled: !localStorage.getItem("jawelry_config") || !configuredImage,
         },
         {
-          content: "View on your store",
-          onAction: () => alert("View on your store action"),
+          content: "Copy Configuration",
+          onAction: () => coppyConfigure(),
+          disabled: !hotspots.length,
         },
       ]}
       actionGroups={[
         {
-          title: "Promote",
+          title: "More actions",
           actions: [
             {
               content: "Share on Facebook",
@@ -126,6 +169,7 @@ function ConfigurePage() {
             setHotspots={setHotspots}
           />
         </ConfiguredElement>
+        {toastMarkup}
       </ConfiguredContainer>
     </Page>
   );

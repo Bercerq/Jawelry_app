@@ -1,5 +1,5 @@
 import { Page, AlphaCard, Pagination } from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
+import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { useEffect, useState } from "react";
 
 import List from "../components/homepage/List";
@@ -10,9 +10,8 @@ import { useAuthenticatedFetch } from "../hooks";
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [productsData, setProductsData] = useState([]);
+  const [filteredProductsData, setFilteredProductsData] = useState([]);
   const [pageInfo, setPageInfo] = useState({});
-  const fetch = useAuthenticatedFetch();
-
   useEffect(() => {
     handlePaginatePage();
   }, []);
@@ -33,20 +32,45 @@ export default function HomePage() {
     setProductsData(res.data);
     setPageInfo(res.pageInfo);
   };
+
+  const app = useAppBridge();
+  const fetch = useAuthenticatedFetch(app);
+
+  async function getOrdersList() {
+    const orderData = await fetch("/collections").then((res) =>
+      console.log(res.json())
+    );
+  }
+
+  useEffect(() => {
+    getOrdersList();
+  }, []);
   return (
     <Page fullWidth>
       <TitleBar title={"Bundler settings"} primaryAction={null} />
       <AlphaCard padding={0}>
-        <Filters />
-        <List isLoading={isLoading} productsData={productsData} />
+        <Filters
+          setIsLoading={setIsLoading}
+          setProductsData={setProductsData}
+          productsData={productsData}
+          handlePaginatePage={handlePaginatePage}
+          setFilteredProductsData={setFilteredProductsData}
+        />
+        <List
+          isLoading={isLoading}
+          productsData={
+            (filteredProductsData.length && filteredProductsData) ||
+            productsData
+          }
+        />
       </AlphaCard>
       <PaginationContainer>
         <Pagination
-          hasPrevious={pageInfo.previousPageUrl}
+          hasPrevious={pageInfo?.previousPageUrl || false}
           onPrevious={() => {
             handlePaginatePage(pageInfo.previousPageUrl);
           }}
-          hasNext={pageInfo.nextPageUrl}
+          hasNext={pageInfo?.nextPageUrl || false}
           onNext={() => {
             handlePaginatePage(pageInfo.nextPageUrl);
           }}

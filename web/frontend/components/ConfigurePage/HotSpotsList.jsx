@@ -1,6 +1,6 @@
 import { HorizontalStack, Icon, LegacyCard, Text } from "@shopify/polaris";
 import React from "react";
-import { editHotspot } from "../../constants/functions/configurePage";
+import { editHotspot, handleDeleteHotSpot } from "../../functions/configurePage";
 import { DeleteHotspot, HotSpotLabel, Spacer } from "../../constants/styles";
 import { CancelMajor } from '@shopify/polaris-icons';
 
@@ -35,7 +35,7 @@ function HotSpotsList({
                 Hotspot {index + 1}
               </span>
               <DeleteHotspot
-                onClick={() => DeleteHotspot(hotspots, setHotspots, index)}
+                onClick={() => handleDeleteHotSpot(hotspots, setHotspots, index)}
               >
                 <Icon source={CancelMajor} color="base" />
               </DeleteHotspot>

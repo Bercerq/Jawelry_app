@@ -7,7 +7,8 @@ import serveStatic from "serve-static";
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
-import metafieldCreator from "./variant_metafield-creator.js";
+import saveConfiguration from "./saveConfigureMetafields.js";
+// import metafieldCreator from "./variant_metafield-creator.js";
 
 const PORT = parseInt(
   process.env.BACKEND_PORT || process.env.PORT || "3000",
@@ -47,22 +48,25 @@ app.get("/api/products/count", async (_req, res) => {
   res.status(200).send(countData);
 });
 
-app.get("/api/products", async (_req, res) => {
+app.get("/api/products?", async (_req, res) => {
   try {
     const response = await shopify.api.rest.Product.all({
       session: res.locals.shopify.session,
-      page_info: _req?.query.page_info || "",
-      limit: 50,
+      page_info: _req?.query.page_info || null,
+      // title: _req?.query.title || null,
+      limit: 250,
     });
+    console.log(_req);
+
     res.status(200).send(response);
   } catch (err) {
     res.status(500).send(err);
   }
 });
 
-app.get(`/api/products/:productId/variants.json`, async (_req, res) => {
+app.get(`/admin/api/2023-07/graphql.json`, async (_req, res) => {
   try {
-    await metafieldCreator(res.locals.shopify.session);
+    await saveConfiguration(res.locals.shopify.session);
   } catch (error) {
     console.error("Error creating metafield:", error);
     res.status(500).send({ error: "Failed to create metafield" });
@@ -81,6 +85,45 @@ app.get("/api/products/create", async (_req, res) => {
     error = e.message;
   }
   res.status(status).send({ success: status === 200, error });
+});
+
+app.get("/collections", async (req, res) => {
+  const session = res.locals.shopify.session;
+
+  try {
+    const client = new shopify.api.clients.Graphql(session);
+
+    const ORDERS_QUERY = `
+    query {
+  collections(first: 50) {
+    edges {
+      node {
+        id
+        handle
+        title
+        description
+        image {
+          originalSrc
+        }
+        metafields(first: 15) {
+          edges {
+            node {
+              id
+              key
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+    }`;
+
+    const response = await client.query({ data: ORDERS_QUERY });
+    res.status(200).send(response.body);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 app.use(shopify.cspHeaders());
