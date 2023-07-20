@@ -10,3 +10,6 @@ export function useUploadImage(setConfiguredImage) {
 
   return handleUploadImage;
 }
+
+
+

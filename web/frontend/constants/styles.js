@@ -9,15 +9,23 @@ export const PaginationContainer = styled.div`
 export const ConfiguredContainer = styled.div`
   display: flex;
   gap: 20px;
+  @media(max-width:1190px){
+    flex-direction: column;
+  }
 `;
 export const ConfiguredElement = styled.div`
-  width: ${({ width }) => width};
-  cursor: pointer;
+${({ container_width }) => 'width:' + container_width};
+${({ container_height }) => 'height:' +container_height};
+  
+  @media(max-width:1190px){
+    width: 100%;
+  }
 `;
-export const ConfiguredNoImage = styled.div`
+export const ConfiguredNoImage = styled.img`
   border-radius: 2px;
   background: #f2f2f2;
   height: 630px;
+  object-fit: contain;
   width: 100%;
   border: none;
   cursor: pointer;
@@ -31,7 +39,7 @@ export const ConfiguredImageContainer = styled.div`
 `;
 export const ConfiguredImage = styled.img`
   width: 100%;
-  height: 100%;
+  height: 630px;
   object-fit: contain;
   pointer-events: none;
   user-select: none;

@@ -13,8 +13,7 @@ import HotSpotsList from "../components/ConfigurePage/HotSpotsList";
 import { ConfiguredContainer, ConfiguredElement } from "../constants/styles";
 import { useAuthenticatedFetch } from "../hooks";
 import { useUploadImage } from "../hooks/useUploadImage";
-import { useQuery } from "@apollo/client";
-import { GET_PRODUCTS_BY_ID } from "../constants/graphql";
+import { configureActions } from "../functions/configurePage";
 
 function ConfigurePage() {
   const { selectedProduct } = useSelector((state) => state.productReducer);
@@ -24,7 +23,7 @@ function ConfigurePage() {
   const [configuredImage, setConfiguredImage] = useState();
   const [charmLocation, setCharmLocation] = useState({
     state: false,
-    value: "",
+    value: "charm_font_location",
   });
   const [deltaPosition, setDeltaPosition] = useState({ state: false });
   const [hotspots, setHotspots] = useState([]);
@@ -33,6 +32,8 @@ function ConfigurePage() {
   const fetch = useAuthenticatedFetch();
 
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState();
+  const [reqLoading, setReqLoading] = useState(false);
 
   const showActiveToast = useCallback(
     () => setShowToast((showToast) => !showToast),
@@ -40,61 +41,88 @@ function ConfigurePage() {
   );
 
   const toastMarkup = showToast ? (
-    <Toast content="The configuration is saved" onDismiss={showActiveToast} />
+    <Toast content={toastMessage} onDismiss={showActiveToast} />
   ) : null;
 
   useEffect(() => {
     if (!selectedProduct.handle) {
       navigate(`/`, { replace: true, reloadDocument: true });
     } else {
-      setSelectedVariant(selectedProduct?.variants[0]?.title);
+      setSelectedVariant(selectedProduct?.variants.nodes[0]?.title);
     }
   }, [selectedProduct]);
-  let queryData = useQuery(GET_PRODUCTS_BY_ID);
-  const { error, data, loading } = queryData;
-  console.log(data);
-  const saveChanges = async () => {
-    alert(
-      JSON.stringify({
-        // selectedProduct,
-        charmLocation: charmLocation.value,
-        hotspots,
-      })
-    );
-    // await fetch(`/admin/api/2023-07/graphql.json`);
-  };
-  const coppyConfigure = () => {
-    let configureObj = {
+  const { goBackClick, saveChanges, applyConfigure, coppyConfigure } =
+    configureActions(
+      selectedProduct,
+      selectedVariant,
+      configuredImage,
+      fetch,
       hotspots,
       charmLocation,
-    };
-    showActiveToast();
-    localStorage.setItem("jawelry_config", JSON.stringify(configureObj));
-  };
-  const applyConfigure = () => {
-    let lsConfigure = JSON.parse(localStorage.getItem("jawelry_config"));
-    showActiveToast();
-    if (lsConfigure?.hotspots) {
-      setHotspots(lsConfigure.hotspots);
+      showActiveToast,
+      setHotspots,
+      setCharmLocation,
+      navigate,
+      setReqLoading,
+      setToastMessage
+    );
+
+  useEffect(async () => {
+    let metafield = selectedProduct.variants.nodes.find(({ title }) => {
+      return title === selectedVariant;
+    })?.metafield?.value;
+
+    if (
+      selectedProduct.tags.includes("image-visualiser-configured") &&
+      metafield
+    ) {
+      let metafieldObj = JSON.parse(metafield);
+      setReqLoading(true);
+      // let variantMetafield = await fetch(`/api/metafields/get`, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     variantId: ownerId.admin_graphql_api_id,
+      //   }),
+      // });
+      // let variantMetafieldData = await variantMetafield.json();
+
+      if (metafieldObj.charmLocation) {
+        setCharmLocation({ value: metafieldObj.charmLocation, state: false });
+      }
+      if (metafieldObj.configuredImage) {
+        setConfiguredImage(metafieldObj.configuredImage);
+      }
+      if (metafieldObj.hotspots.length) {
+        setHotspots(metafieldObj.hotspots);
+      }
+
+      setReqLoading(false);
+    } else {
+      setHotspots([]);
+      setConfiguredImage();
+
     }
-    if (lsConfigure?.charmLocation) {
-      setCharmLocation(lsConfigure.charmLocation);
-    }
-  };
-  const goBackClick = () => {
-    navigate(`/`, { replace: true, reloadDocument: true });
-  };
+  }, [selectedVariant]);
+
   return (
     <Page
       backAction={{ content: "homepage", onAction: () => goBackClick() }}
       title={selectedProduct.title}
-      titleMetadata={<Badge>No Configuration</Badge>}
+      titleMetadata={
+        selectedProduct.tags.includes("image-visualiser-configured") ? (
+          <Badge status="success">Configured</Badge>
+        ) : (
+          <Badge>No Configuration</Badge>
+        )
+      }
       subtitle={selectedProduct.handle}
       compactTitle
       primaryAction={{
         content: "Save",
         onAction: () => saveChanges(),
-        disabled: !hotspots.length,
+        disabled: !hotspots.length || !charmLocation.value,
+        loading: reqLoading,
       }}
       secondaryActions={[
         {
@@ -124,7 +152,7 @@ function ConfigurePage() {
     >
       <ConfiguredContainer>
         {/* Left image container  */}
-        <ConfiguredElement width="65%">
+        <ConfiguredElement container_width="600px" container_height="714px">
           <ImageContainer
             configuredImage={configuredImage}
             handleUploadImage={handleUploadImage}
@@ -136,7 +164,7 @@ function ConfigurePage() {
         </ConfiguredElement>
 
         {/* Right configure options  */}
-        <ConfiguredElement width="35%">
+        <ConfiguredElement container_width="35%" container_height="100%">
           {/* Variant Picker */}
           <VariantPicker
             selectedProduct={selectedProduct}

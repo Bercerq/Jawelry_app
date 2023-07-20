@@ -1,78 +1,83 @@
-import { Page, AlphaCard, Pagination } from "@shopify/polaris";
+import { Page, AlphaCard, Pagination, Heading, Text } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { useEffect, useState } from "react";
 
 import List from "../components/homepage/List";
 import Filters from "../components/homepage/Filters";
-import { PaginationContainer } from "../constants/styles";
+import { PaginationContainer, Spacer } from "../constants/styles";
 import { useAuthenticatedFetch } from "../hooks";
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [productsData, setProductsData] = useState([]);
-  const [filteredProductsData, setFilteredProductsData] = useState([]);
   const [pageInfo, setPageInfo] = useState({});
+  const [queryVal, setQueryVal] = useState();
+  const fetch = useAuthenticatedFetch();
   useEffect(() => {
     handlePaginatePage();
   }, []);
-
+  console.log(queryVal);
   const handlePaginatePage = async (pageInfo) => {
     let response;
-
     setIsLoading(true);
-
     if (pageInfo) {
-      response = await fetch(`/api/products?` + pageInfo);
+      response = await fetch(`/api/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...pageInfo,
+        }),
+      });
     } else {
-      response = await fetch(`/api/products`);
+      response = await fetch(`/api/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first: 10,
+        }),
+      });
     }
 
-    setIsLoading(false);
     let res = await response.json();
-    setProductsData(res.data);
-    setPageInfo(res.pageInfo);
+    if (res.body?.data) {
+      setProductsData(res.body.data.products.nodes);
+      setPageInfo(res.body.data.products.pageInfo);
+    }
+    setIsLoading(false);
   };
 
-  const app = useAppBridge();
-  const fetch = useAuthenticatedFetch(app);
-
-  async function getOrdersList() {
-    const orderData = await fetch("/collections").then((res) =>
-      console.log(res.json())
-    );
-  }
-
-  useEffect(() => {
-    getOrdersList();
-  }, []);
   return (
     <Page fullWidth>
       <TitleBar title={"Bundler settings"} primaryAction={null} />
+      <Spacer spacer="margin-top:20px;" />
+      <Text variant="headingLg" as="h1">
+        Find a product you want to configure.
+      </Text>
+      <Spacer spacer="margin-bottom:40px;" />
       <AlphaCard padding={0}>
         <Filters
-          setIsLoading={setIsLoading}
-          setProductsData={setProductsData}
-          productsData={productsData}
           handlePaginatePage={handlePaginatePage}
-          setFilteredProductsData={setFilteredProductsData}
+          setQueryVal={setQueryVal}
         />
-        <List
-          isLoading={isLoading}
-          productsData={
-            (filteredProductsData.length && filteredProductsData) ||
-            productsData
-          }
-        />
+        <List isLoading={isLoading} productsData={productsData} />
       </AlphaCard>
       <PaginationContainer>
         <Pagination
-          hasPrevious={pageInfo?.previousPageUrl || false}
+          hasPrevious={pageInfo?.hasPreviousPage || false}
           onPrevious={() => {
-            handlePaginatePage(pageInfo.previousPageUrl);
+            handlePaginatePage({
+              before: pageInfo.startCursor,
+              last: 10,
+              ...queryVal,
+            });
           }}
-          hasNext={pageInfo?.nextPageUrl || false}
+          hasNext={pageInfo?.hasNextPage || false}
           onNext={() => {
-            handlePaginatePage(pageInfo.nextPageUrl);
+            handlePaginatePage({
+              after: pageInfo.endCursor,
+              first: 10,
+              ...queryVal,
+            });
           }}
         />
       </PaginationContainer>
