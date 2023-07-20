@@ -4,7 +4,6 @@ import { readFileSync } from "fs";
 import express from "express";
 import serveStatic from "serve-static";
 import bodyParser from "body-parser";
-import cors from "cors";
 
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
@@ -166,7 +165,6 @@ app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
 
 app.use("/*", shopify.ensureInstalledOnShop(), async (_req, res, _next) => {
   return res
