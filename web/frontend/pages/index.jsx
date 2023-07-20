@@ -16,7 +16,6 @@ export default function HomePage() {
   useEffect(() => {
     handlePaginatePage();
   }, []);
-  console.log(queryVal);
   const handlePaginatePage = async (pageInfo) => {
     let response;
     setIsLoading(true);
