@@ -36,6 +36,7 @@ function CharmLocation({ charmLocation, setCharmLocation }) {
           <Spacer spacer="margin-top:20px;" />
           <TextField
             label="Enter location"
+            placeholder="Default: charm_font_location"
             value={charmLocation.value}
             onChange={(val) =>
               setCharmLocation((prevState) => ({

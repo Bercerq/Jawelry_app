@@ -24,6 +24,7 @@ function ImageContainer({
 }) {
   const dragRef = useRef(null);
   const disabledDragRef = useRef(null);
+  const uploadedImage = useRef(null)
   let timeoutId;
   const debouncePositionValue = (value) => {
     // Clear the previous timeout
@@ -37,18 +38,18 @@ function ImageContainer({
       }));
     }, 500);
   };
-
   return (
     <LegacyCard title="Selected Image" sectioned>
       {configuredImage ? (
         <ConfiguredImageContainer className="resizable_target">
           <ConfiguredImage
+           ref={uploadedImage}
             src={
               ["image/gif", "image/jpeg", "image/png"].includes(
                 configuredImage.type
               )
                 ? window.URL.createObjectURL(configuredImage)
-                : NoteMinor
+                : configuredImage
             }
           />
           {deltaPosition.state ? (
@@ -74,6 +75,7 @@ function ImageContainer({
                 }}
                 onDrag={(e) => {
                   e.target.style.transform = e.transform;
+                  // console.log(e.transform );
                   debouncePositionValue({ position: e.transform });
                 }}
                 onBeforeResize={(e) => {
@@ -152,7 +154,7 @@ function ImageContainer({
           outline={false}
           onDrop={handleUploadImage}
         >
-          <ConfiguredNoImage />
+          <ConfiguredNoImage src="https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-4.png"/>
         </DropZone>
       )}
     </LegacyCard>
