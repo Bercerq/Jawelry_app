@@ -12,7 +12,6 @@ import {
 } from "../../constants/styles";
 
 import { throttle } from "@daybrush/utils";
-import keycon from "keycon";
 import { editHotspot } from "../../functions/configurePage";
 function ImageContainer({
   configuredImage,
@@ -24,7 +23,7 @@ function ImageContainer({
 }) {
   const dragRef = useRef(null);
   const disabledDragRef = useRef(null);
-  const uploadedImage = useRef(null)
+  const uploadedImage = useRef(null);
   let timeoutId;
   const debouncePositionValue = (value) => {
     // Clear the previous timeout
@@ -43,7 +42,7 @@ function ImageContainer({
       {configuredImage ? (
         <ConfiguredImageContainer className="resizable_target">
           <ConfiguredImage
-           ref={uploadedImage}
+            ref={uploadedImage}
             src={
               ["image/gif", "image/jpeg", "image/png"].includes(
                 configuredImage.type
@@ -54,12 +53,18 @@ function ImageContainer({
           />
           {deltaPosition.state ? (
             <DragableActiveContainer>
-              <DragableElement {...deltaPosition} ref={dragRef}>
+              <DragableElement
+                ref={dragRef}
+                x={deltaPosition.x}
+                y={deltaPosition.y}
+                rotate={deltaPosition.rotate}
+                matrix={deltaPosition.matrix}
+              >
                 Drag
               </DragableElement>
               <Moveable
                 target={dragRef}
-                resizable={true}
+                // resizable={true}
                 draggable={true}
                 rotatable={true}
                 snappable={true}
@@ -70,35 +75,44 @@ function ImageContainer({
                   right: 0,
                   position: "css",
                 }}
-                onResizeStart={(e) => {
-                  e.setFixedDirection([0, 0]);
-                }}
+                // onResizeStart={(e) => {
+                //   e.setFixedDirection([0, 0]);
+                // }}
                 onDrag={(e) => {
                   e.target.style.transform = e.transform;
-                  // console.log(e.transform );
-                  debouncePositionValue({ position: e.transform });
-                }}
-                onBeforeResize={(e) => {
-                  if (keycon.global.shiftKey) {
-                    e.setFixedDirection([-1, -1]);
-                  } else {
-                    e.setFixedDirection([0, 0]);
-                  }
-                }}
-                onResize={(e) => {
-                  e.target.style.cssText += `width: ${e.width}px; height: ${e.height}px`;
-                  e.target.style.transform = e.drag.transform;
                   debouncePositionValue({
-                    resize: { width: e.width, height: e.height },
-                    position: e.drag.transform,
+                    x: e.translate[0],
+                    y: e.translate[1],
+                    matrix:
+                      e.transform.split("matrix3d(")[1].split(")")[0] || false,
                   });
                 }}
+                // onBeforeResize={(e) => {
+                //   if (keycon.global.shiftKey) {
+                //     e.setFixedDirection([-1, -1]);
+                //   } else {
+                //     e.setFixedDirection([0, 0]);
+                //   }
+                // }}
+                // onResize={(e) => {
+                //   e.target.style.cssText += `width: ${e.width}px; height: ${e.height}px`;
+                //   e.target.style.transform = e.drag.transform;
+                //   debouncePositionValue({
+                //     resize: { width: e.width, height: e.height },
+                //     position: e.drag.transform,
+                //   });
+                // }}
                 onBeforeRotate={(e) => {
-                  e.setRotation(throttle(e.rotation, 20));
+                  e.setRotation(throttle(e.rotation, 1));
                 }}
                 onRotate={(e) => {
                   e.target.style.transform = e.drag.transform;
-                  debouncePositionValue({ position: e.drag.transform });
+
+                  debouncePositionValue({
+                    rotate: e.rotate,
+                    matrix:
+                      e.transform.split("matrix3d(")[1].split(")")[0] || false,
+                  });
                 }}
               />
             </DragableActiveContainer>
@@ -117,7 +131,13 @@ function ImageContainer({
               }
               key={index}
             >
-              <DragableElementDisabled ref={disabledDragRef} {...spotsParams}>
+              <DragableElementDisabled
+                ref={disabledDragRef}
+                x={spotsParams.x}
+                y={spotsParams.y}
+                rotate={spotsParams.rotate}
+                matrix={spotsParams.matrix}
+              >
                 {index + 1}
               </DragableElementDisabled>
               <Moveable
@@ -133,15 +153,15 @@ function ImageContainer({
                   right: 0,
                   position: "css",
                 }}
-                onBeforeResize={(e) => {
-                  if (keycon.global.shiftKey) {
-                    e.setFixedDirection([-1, -1]);
-                  } else {
-                    e.setFixedDirection([0, 0]);
-                  }
-                }}
+                // onBeforeResize={(e) => {
+                //   if (keycon.global.shiftKey) {
+                //     e.setFixedDirection([-1, -1]);
+                //   } else {
+                //     e.setFixedDirection([0, 0]);
+                //   }
+                // }}
                 onBeforeRotate={(e) => {
-                  e.setRotation(throttle(e.rotation, 20));
+                  e.setRotation(throttle(e.rotation, 1));
                 }}
               />
             </DragableDisabledContainer>
@@ -154,7 +174,7 @@ function ImageContainer({
           outline={false}
           onDrop={handleUploadImage}
         >
-          <ConfiguredNoImage src="https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-4.png"/>
+          <ConfiguredNoImage src="https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-4.png" />
         </DropZone>
       )}
     </LegacyCard>
