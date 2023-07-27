@@ -25,7 +25,13 @@ function ConfigurePage() {
     state: false,
     value: "charm_font_location",
   });
-  const [deltaPosition, setDeltaPosition] = useState({ state: false });
+  const [deltaPosition, setDeltaPosition] = useState({
+    state: false,
+    x: 200,
+    y: -400,
+    rotate: 0,
+    matrix: 0,
+  });
   const [hotspots, setHotspots] = useState([]);
 
   const handleUploadImage = useUploadImage(setConfiguredImage);
@@ -39,7 +45,6 @@ function ConfigurePage() {
     () => setShowToast((showToast) => !showToast),
     []
   );
-
   const toastMarkup = showToast ? (
     <Toast content={toastMessage} onDismiss={showActiveToast} />
   ) : null;
@@ -101,7 +106,6 @@ function ConfigurePage() {
     } else {
       setHotspots([]);
       setConfiguredImage();
-
     }
   }, [selectedVariant]);
 

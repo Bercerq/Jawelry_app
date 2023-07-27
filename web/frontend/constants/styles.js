@@ -9,15 +9,15 @@ export const PaginationContainer = styled.div`
 export const ConfiguredContainer = styled.div`
   display: flex;
   gap: 20px;
-  @media(max-width:1190px){
+  @media (max-width: 1190px) {
     flex-direction: column;
   }
 `;
 export const ConfiguredElement = styled.div`
-${({ container_width }) => 'width:' + container_width};
-${({ container_height }) => 'height:' +container_height};
-  
-  @media(max-width:1190px){
+  ${({ container_width }) => "width:" + container_width};
+  ${({ container_height }) => "height:" + container_height};
+
+  @media (max-width: 1190px) {
     width: 100%;
   }
 `;
@@ -49,7 +49,7 @@ export const Spacer = styled.div`
 `;
 export const DeleteHotspot = styled.div`
   cursor: pointer;
-  &:hover{
+  &:hover {
     opacity: 0.5;
   }
 `;
@@ -69,10 +69,12 @@ export const HotSpotLabel = styled.div`
 `;
 
 export const DragableElement = styled.div`
-  width: ${({ resize }) => (resize ? resize.width + "px" : "50px")};
-  height: ${({ resize }) => (resize ? resize.height + "px" : "50px")};
-  ${({ position }) =>
-    position ? "transform:" + position : "transform: translate(200px, -400px)"};
+  width: 50px;
+  height: 50px;
+  ${({ x, y, rotate, matrix }) =>
+    `transform: translate(${x}px, ${y}px) ${
+      matrix !== 0 ? "matrix3d(" + matrix + ")" : ""
+    } ${rotate !== 0 ? "rotate(" + rotate + "deg)" : ""}`};
   border: 1px dashed #008060;
   background: rgba(149, 201, 180, 0.6);
 
@@ -116,10 +118,12 @@ export const DragableElementDisabled = styled.div`
   z-index: 1;
   border-radius: 6px;
   background: rgba(69, 143, 255, 0.8);
-  width: ${({ resize }) => (resize ? resize.width + "px" : "50px")};
-  height: ${({ resize }) => (resize ? resize.height + "px" : "50px")};
-  ${({ position }) =>
-    position ? "transform:" + position : "transform: translate(200px, -400px)"};
+  width: 50px;
+  height: 50px;
+  ${({ x, y, rotate, matrix }) =>
+    `transform: translate(${x}px, ${y}px) ${
+      matrix !== 0 ? "matrix3d(" + matrix + ")" : ""
+    } ${rotate !== 0 ? "rotate(" + rotate + "deg)" : ""}`};
   display: flex;
   justify-content: center;
   align-items: center;

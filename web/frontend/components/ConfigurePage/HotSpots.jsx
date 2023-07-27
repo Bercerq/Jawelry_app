@@ -17,7 +17,13 @@ function HotSpots({
 }) {
   const addHotspot = () => {
     setHotspots((prevState) => [...prevState, deltaPosition]);
-    setDeltaPosition({ state: false });
+    setDeltaPosition({ state: false, x: 200, y: -400, rotate: 0, matrix: 0 });
+  };
+  const handleChangePosition = (e) => {
+    setDeltaPosition((prevState) => ({
+      ...prevState,
+      ...e,
+    }));
   };
   return (
     <LegacyCard sectioned>
@@ -28,7 +34,15 @@ function HotSpots({
         {!deltaPosition.state && (
           <Button
             disabled={!configuredImage}
-            onClick={() => setDeltaPosition({ state: true })}
+            onClick={() =>
+              setDeltaPosition({
+                state: true,
+                x: 200,
+                y: -400,
+                rotate: 0,
+                matrix: 0,
+              })
+            }
             primary
           >
             Add
@@ -42,38 +56,31 @@ function HotSpots({
           <Spacer spacer="margin-top:20px;"></Spacer>
           <TextField
             label="X position"
-            type="text"
-            value={
-              deltaPosition?.position
-                ?.split("translate(")[1]
-                .split(")")[0]
-                .split(", ")[0]
-            }
-            readOnly={true}
+            type="number"
+            value={deltaPosition?.x}
+            onChange={(e) => handleChangePosition({ x: e })}
             helpText="Horizontal"
+            prefix='x'
             autoComplete="off"
           />
           <Spacer spacer="margin-top:20px;"></Spacer>
           <TextField
             label="Y position"
-            type="text"
-            value={
-              deltaPosition?.position
-                ?.split("translate(")[1]
-                .split(")")[0]
-                .split(", ")[1]
-            }
-            readOnly={true}
+            type="number"
+            value={deltaPosition?.y}
+            onChange={(e) => handleChangePosition({ y: e })}
             helpText="Vertical"
+            prefix='y'
             autoComplete="off"
           />
           <Spacer spacer="margin-top:20px;"></Spacer>
           <TextField
             label="Rotation"
-            type="text"
-            value={deltaPosition?.position?.split('rotate(')[1]?.replace(')','')}
-            readOnly={true}
+            type="number"
+            value={deltaPosition?.rotate}
+            onChange={(e) => handleChangePosition({ rotate: e })}
             autoComplete="off"
+            prefix='deg'
           />
           <Spacer spacer="margin-top:20px;"></Spacer>
           <HorizontalStack align="end" gap="2">
