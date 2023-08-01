@@ -9,9 +9,22 @@ export function editHotspot(
   setHotspots
 ) {
   if (!deltaPosition.state) {
+    // handleDeleteHotSpot(hotspots, setHotspots, ind);
+    handleEdithotSpot(hotspots, setHotspots, ind);
     setDeltaPosition(spotsParams);
-    handleDeleteHotSpot(hotspots, setHotspots, ind);
   }
+}
+
+function handleEdithotSpot(hotspots, setHotspots, ind) {
+  let editedHotspot = hotspots.find((el, index) => index === ind);
+  editedHotspot.index = ind;
+  // setHotspots((prevState) => [...prevState, (prevState[ind] = editedHotspot)]);
+
+  setHotspots((prevState) => {
+    const updatedHotspots = [...prevState];
+    updatedHotspots[ind] = editedHotspot;
+    return updatedHotspots;
+  });
 }
 
 export function handleDeleteHotSpot(hotspots, setHotspots, ind) {

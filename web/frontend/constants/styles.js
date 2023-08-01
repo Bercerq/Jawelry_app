@@ -16,15 +16,14 @@ export const ConfiguredContainer = styled.div`
 export const ConfiguredElement = styled.div`
   ${({ container_width }) => "width:" + container_width};
   ${({ container_height }) => "height:" + container_height};
+  ${({ mobile }) => mobile && `@media (max-width: 1190px) {width:${mobile}}`};
 
-  @media (max-width: 1190px) {
-    width: 100%;
-  }
+  
 `;
 export const ConfiguredNoImage = styled.img`
   border-radius: 2px;
   background: #f2f2f2;
-  height: 630px;
+  height: 515px;
   object-fit: contain;
   width: 100%;
   border: none;
@@ -36,10 +35,10 @@ export const ConfiguredImageContainer = styled.div`
   background: #f2f2f2;
   border: none;
   position: relative;
+  line-height: 1;
 `;
 export const ConfiguredImage = styled.img`
   width: 100%;
-  height: 630px;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
@@ -124,7 +123,7 @@ export const DragableElementDisabled = styled.div`
     `transform: translate(${x}px, ${y}px) ${
       matrix !== 0 ? "matrix3d(" + matrix + ")" : ""
     } ${rotate !== 0 ? "rotate(" + rotate + "deg)" : ""}`};
-  display: flex;
+  ${({hidden}) => hidden ? 'display:none;' : 'display: flex;' }
   justify-content: center;
   align-items: center;
   cursor: grabbing;
