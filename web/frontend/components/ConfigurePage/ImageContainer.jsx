@@ -137,7 +137,7 @@ function ImageContainer({
                 y={spotsParams.y}
                 rotate={spotsParams.rotate}
                 matrix={spotsParams.matrix}
-                hidden={spotsParams?.index}
+                hidden={spotsParams.hidden}
               >
                 {index + 1}
               </DragableElementDisabled>

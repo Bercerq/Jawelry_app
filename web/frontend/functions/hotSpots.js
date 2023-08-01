@@ -5,9 +5,11 @@ export function getHotspotsFunctions(
     hotspots
   ) {
     const addHotspot = () => {
-      if (deltaPosition.index) {
+      if (deltaPosition.hidden) {
         let newObj = JSON.parse(JSON.stringify(deltaPosition));
         delete newObj.index;
+        delete newObj.hidden;
+
         setHotspots((prevState) => {
           const updatedHotspots = [...prevState];
           updatedHotspots[deltaPosition.index] = newObj;
@@ -19,7 +21,6 @@ export function getHotspotsFunctions(
       handleSetPositionByDefault();
     };
     const handleChangePosition = (e) => {
-        console.log(e);
       setDeltaPosition((prevState) => ({
         ...prevState,
         ...e,
@@ -30,6 +31,8 @@ export function getHotspotsFunctions(
         (el, index) => index === deltaPosition.index
       );
       delete editedHotspot.index;
+      delete editedHotspot.hidden;
+
       setHotspots((prevState) => {
         const updatedHotspots = [...prevState];
         updatedHotspots[deltaPosition.index] = editedHotspot;
