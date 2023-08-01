@@ -27,13 +27,12 @@ function ConfigurePage() {
   });
   const [deltaPosition, setDeltaPosition] = useState({
     state: false,
-    x: 200,
-    y: -400,
+    x: 0,
+    y: 0,
     rotate: 0,
-    matrix: 0,
+    matrix: '1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 200, -400, 0, 1'
   });
   const [hotspots, setHotspots] = useState([]);
-
   const handleUploadImage = useUploadImage(setConfiguredImage);
   const fetch = useAuthenticatedFetch();
 
@@ -156,7 +155,7 @@ function ConfigurePage() {
     >
       <ConfiguredContainer>
         {/* Left image container  */}
-        <ConfiguredElement container_width="600px" container_height="714px">
+        <ConfiguredElement container_width="496px" container_height="100%">
           <ImageContainer
             configuredImage={configuredImage}
             handleUploadImage={handleUploadImage}
@@ -168,7 +167,7 @@ function ConfigurePage() {
         </ConfiguredElement>
 
         {/* Right configure options  */}
-        <ConfiguredElement container_width="35%" container_height="100%">
+        <ConfiguredElement container_width="45%" container_height="100%" mobile="100%">
           {/* Variant Picker */}
           <VariantPicker
             selectedProduct={selectedProduct}

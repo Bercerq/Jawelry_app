@@ -7,6 +7,7 @@ import {
 } from "@shopify/polaris";
 import React from "react";
 import { Spacer } from "../../constants/styles";
+import { getHotspotsFunctions } from "../../functions/hotSpots";
 
 function HotSpots({
   deltaPosition,
@@ -15,16 +16,18 @@ function HotSpots({
   hotspots,
   setHotspots,
 }) {
-  const addHotspot = () => {
-    setHotspots((prevState) => [...prevState, deltaPosition]);
-    setDeltaPosition({ state: false, x: 200, y: -400, rotate: 0, matrix: 0 });
-  };
-  const handleChangePosition = (e) => {
-    setDeltaPosition((prevState) => ({
-      ...prevState,
-      ...e,
-    }));
-  };
+  const {
+    handleSetPositionByDefault,
+    handleChangePosition,
+    handleCancel,
+    addHotspot,
+  } = getHotspotsFunctions(
+    deltaPosition,
+    setHotspots,
+    setDeltaPosition,
+    hotspots
+  );
+
   return (
     <LegacyCard sectioned>
       <HorizontalStack blockAlign="center" align="space-between" wrap={false}>
@@ -34,15 +37,7 @@ function HotSpots({
         {!deltaPosition.state && (
           <Button
             disabled={!configuredImage}
-            onClick={() =>
-              setDeltaPosition({
-                state: true,
-                x: 200,
-                y: -400,
-                rotate: 0,
-                matrix: 0,
-              })
-            }
+            onClick={() => handleSetPositionByDefault()}
             primary
           >
             Add
@@ -52,15 +47,15 @@ function HotSpots({
       {deltaPosition.state && (
         <>
           <Spacer spacer="margin-top:20px;"></Spacer>
-          Hotspot ID: {hotspots.length ? hotspots.length + 1 : "1"}
+          Hotspot ID: {deltaPosition.index + 1 || hotspots.length + 1}
           <Spacer spacer="margin-top:20px;"></Spacer>
           <TextField
             label="X position"
             type="number"
             value={deltaPosition?.x}
-            onChange={(e) => handleChangePosition({ x: e })}
+            onChange={(e) => handleChangePosition({ x: +e })}
             helpText="Horizontal"
-            prefix='x'
+            prefix="x"
             autoComplete="off"
           />
           <Spacer spacer="margin-top:20px;"></Spacer>
@@ -68,9 +63,9 @@ function HotSpots({
             label="Y position"
             type="number"
             value={deltaPosition?.y}
-            onChange={(e) => handleChangePosition({ y: e })}
+            onChange={(e) => handleChangePosition({ y: +e })}
             helpText="Vertical"
-            prefix='y'
+            prefix="y"
             autoComplete="off"
           />
           <Spacer spacer="margin-top:20px;"></Spacer>
@@ -78,15 +73,13 @@ function HotSpots({
             label="Rotation"
             type="number"
             value={deltaPosition?.rotate}
-            onChange={(e) => handleChangePosition({ rotate: e })}
+            onChange={(e) => handleChangePosition({ rotate: +e })}
             autoComplete="off"
-            prefix='deg'
+            prefix="deg"
           />
           <Spacer spacer="margin-top:20px;"></Spacer>
           <HorizontalStack align="end" gap="2">
-            <Button onClick={() => setDeltaPosition({ state: false })}>
-              Cancel
-            </Button>
+            <Button onClick={() => handleCancel()}>Cancel</Button>
             <Button onClick={() => addHotspot()} primary>
               Save
             </Button>
@@ -98,3 +91,4 @@ function HotSpots({
 }
 
 export default HotSpots;
+
