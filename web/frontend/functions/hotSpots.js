@@ -1,32 +1,33 @@
 export function getHotspotsFunctions(
-    deltaPosition,
-    setHotspots,
-    setDeltaPosition,
-    hotspots
-  ) {
-    const addHotspot = () => {
-      if (deltaPosition.hidden) {
-        let newObj = JSON.parse(JSON.stringify(deltaPosition));
-        delete newObj.index;
-        delete newObj.hidden;
+  deltaPosition,
+  setHotspots,
+  setDeltaPosition,
+  hotspots
+) {
+  const addHotspot = () => {
+    if (deltaPosition.hidden) {
+      let newObj = JSON.parse(JSON.stringify(deltaPosition));
+      delete newObj.index;
+      delete newObj.hidden;
 
-        setHotspots((prevState) => {
-          const updatedHotspots = [...prevState];
-          updatedHotspots[deltaPosition.index] = newObj;
-          return updatedHotspots;
-        });
-      } else {
-        setHotspots((prevState) => [...prevState, deltaPosition]);
-      }
-      handleSetPositionByDefault();
-    };
-    const handleChangePosition = (e) => {
-      setDeltaPosition((prevState) => ({
-        ...prevState,
-        ...e,
-      }));
-    };
-    const handleCancel = () => {
+      setHotspots((prevState) => {
+        const updatedHotspots = [...prevState];
+        updatedHotspots[deltaPosition.index] = newObj;
+        return updatedHotspots;
+      });
+    } else {
+      setHotspots((prevState) => [...prevState, deltaPosition]);
+    }
+    handleSetPositionByDefault(false);
+  };
+  const handleChangePosition = (e) => {
+    setDeltaPosition((prevState) => ({
+      ...prevState,
+      ...e,
+    }));
+  };
+  const handleCancel = () => {
+    if (deltaPosition.hidden) {
       let editedHotspot = hotspots.find(
         (el, index) => index === deltaPosition.index
       );
@@ -38,21 +39,23 @@ export function getHotspotsFunctions(
         updatedHotspots[deltaPosition.index] = editedHotspot;
         return updatedHotspots;
       });
-      handleSetPositionByDefault();
-    };
-    const handleSetPositionByDefault = () => {
-      setDeltaPosition({
-        state: false,
-        x: 0,
-        y: 0,
-        rotate: 0,
-        matrix: "1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 200, -400, 0, 1",
-      });
-    };
-    return {
-      handleSetPositionByDefault,
-      handleChangePosition,
-      handleCancel,
-      addHotspot,
-    };
-  }
+    }
+
+    handleSetPositionByDefault(false);
+  };
+  const handleSetPositionByDefault = (boolVal) => {
+    setDeltaPosition({
+      state: boolVal,
+      x: 0,
+      y: 0,
+      rotate: 0,
+      matrix: "1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 200, -400, 0, 1",
+    });
+  };
+  return {
+    handleSetPositionByDefault,
+    handleChangePosition,
+    handleCancel,
+    addHotspot,
+  };
+}

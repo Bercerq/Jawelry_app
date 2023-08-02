@@ -27,7 +27,6 @@ function HotSpots({
     setDeltaPosition,
     hotspots
   );
-
   return (
     <LegacyCard sectioned>
       <HorizontalStack blockAlign="center" align="space-between" wrap={false}>
@@ -37,7 +36,7 @@ function HotSpots({
         {!deltaPosition.state && (
           <Button
             disabled={!configuredImage}
-            onClick={() => handleSetPositionByDefault()}
+            onClick={() => handleSetPositionByDefault(true)}
             primary
           >
             Add
