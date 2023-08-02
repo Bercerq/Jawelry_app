@@ -48,8 +48,7 @@ export function getHotspotsFunctions(
       state: boolVal,
       x: 0,
       y: 0,
-      rotate: 0,
-      matrix: "1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 200, -400, 0, 1",
+      rotate: 0
     });
   };
   return {

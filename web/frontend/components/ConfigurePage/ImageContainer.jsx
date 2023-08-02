@@ -26,10 +26,7 @@ function ImageContainer({
   const uploadedImage = useRef(null);
   let timeoutId;
   const debouncePositionValue = (value) => {
-    // Clear the previous timeout
     clearTimeout(timeoutId);
-
-    // Set a new timeout to update the deltaPosition state after 500 milliseconds
     timeoutId = setTimeout(() => {
       setDeltaPosition((prevState) => ({
         ...prevState,
@@ -55,10 +52,9 @@ function ImageContainer({
             <DragableActiveContainer>
               <DragableElement
                 ref={dragRef}
-                x={deltaPosition.x}
-                y={deltaPosition.y}
-                rotate={deltaPosition.rotate}
-                matrix={deltaPosition.matrix}
+                style={{
+                  transform: `translate(${deltaPosition.x}px, ${deltaPosition.y}px) rotate(${deltaPosition.rotate}deg)`,
+                }}
               >
                 Drag
               </DragableElement>
@@ -83,8 +79,6 @@ function ImageContainer({
                   debouncePositionValue({
                     x: e.translate[0],
                     y: e.translate[1],
-                    matrix:
-                      e.transform.split("matrix3d(")[1].split(")")[0] || false,
                   });
                 }}
                 // onBeforeResize={(e) => {
@@ -107,11 +101,8 @@ function ImageContainer({
                 }}
                 onRotate={(e) => {
                   e.target.style.transform = e.drag.transform;
-
                   debouncePositionValue({
                     rotate: e.rotate,
-                    matrix:
-                      e.transform.split("matrix3d(")[1].split(")")[0] || false,
                   });
                 }}
               />
@@ -136,7 +127,6 @@ function ImageContainer({
                 x={spotsParams.x}
                 y={spotsParams.y}
                 rotate={spotsParams.rotate}
-                matrix={spotsParams.matrix}
                 hidden={spotsParams.hidden}
               >
                 {index + 1}

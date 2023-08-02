@@ -17,8 +17,6 @@ export const ConfiguredElement = styled.div`
   ${({ container_width }) => "width:" + container_width};
   ${({ container_height }) => "height:" + container_height};
   ${({ mobile }) => mobile && `@media (max-width: 1190px) {width:${mobile}}`};
-
-  
 `;
 export const ConfiguredNoImage = styled.img`
   border-radius: 2px;
@@ -70,17 +68,14 @@ export const HotSpotLabel = styled.div`
 export const DragableElement = styled.div`
   width: 50px;
   height: 50px;
-  ${({ x, y, rotate, matrix }) =>
-    `transform: translate(${x}px, ${y}px) ${
-      matrix !== 0 ? "matrix3d(" + matrix + ")" : ""
-    } ${rotate !== 0 ? "rotate(" + rotate + "deg)" : ""}`};
   border: 1px dashed #008060;
   background: rgba(149, 201, 180, 0.6);
-
   display: flex;
   justify-content: center;
   align-items: center;
   position: absolute;
+  top: 0;
+  left: 0;
   color: #202223;
   font-size: 12px;
   font-style: normal;
@@ -119,15 +114,17 @@ export const DragableElementDisabled = styled.div`
   background: rgba(69, 143, 255, 0.8);
   width: 50px;
   height: 50px;
-  ${({ x, y, rotate, matrix }) =>
-    `transform: translate(${x}px, ${y}px) ${
-      matrix !== 0 ? "matrix3d(" + matrix + ")" : ""
-    } ${rotate !== 0 ? "rotate(" + rotate + "deg)" : ""}`};
-  ${({hidden}) => hidden ? 'display:none;' : 'display: flex;' }
+  ${({ x, y, rotate }) =>
+    `transform: translate(${x}px, ${y}px)  ${
+      rotate !== 0 ? "rotate(" + rotate + "deg)" : ""
+    }`};
+  ${({ hidden }) => (hidden ? "display:none;" : "display: flex;")}
   justify-content: center;
   align-items: center;
   cursor: grabbing;
   position: absolute;
+  top: 0;
+  left: 0;
   color: #202223;
   font-size: 12px;
   font-style: normal;
