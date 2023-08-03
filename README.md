@@ -1,12 +1,5 @@
-
-
-
-
-
-
-
-
-
+# Documentation
+https://docs.google.com/document/d/1VxIwY4E4eURSf6lggpdx_nFJhjj8wAxGG4XGmRFXVZo/edit?usp=sharing
 
 # Shopify App Template - Node
 

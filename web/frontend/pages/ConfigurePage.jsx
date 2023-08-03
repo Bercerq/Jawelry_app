@@ -81,14 +81,6 @@ function ConfigurePage() {
     ) {
       let metafieldObj = JSON.parse(metafield);
       setReqLoading(true);
-      // let variantMetafield = await fetch(`/api/metafields/get`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({
-      //     variantId: ownerId.admin_graphql_api_id,
-      //   }),
-      // });
-      // let variantMetafieldData = await variantMetafield.json();
 
       if (metafieldObj.charmLocation) {
         setCharmLocation({ value: metafieldObj.charmLocation, state: false });

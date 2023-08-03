@@ -9,7 +9,6 @@ export function editHotspot(
   setHotspots
 ) {
   if (!deltaPosition.state) {
-    // handleDeleteHotSpot(hotspots, setHotspots, ind);
     handleEdithotSpot(hotspots, setHotspots, ind);
     setDeltaPosition(spotsParams);
   }
@@ -19,8 +18,6 @@ function handleEdithotSpot(hotspots, setHotspots, ind) {
   let editedHotspot = hotspots.find((el, index) => index === ind);
   editedHotspot.index = ind;
   editedHotspot.hidden = true;
-  // setHotspots((prevState) => [...prevState, (prevState[ind] = editedHotspot)]);
-
   setHotspots((prevState) => {
     const updatedHotspots = [...prevState];
     updatedHotspots[ind] = editedHotspot;
